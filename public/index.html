@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#f7e9e8">
+<title>Painel — Maia Balloons</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="painel/panel.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="brand"><span class="brand-mark">✿</span><span><strong>maia</strong><small>PAINEL DO SITE</small></span></div>
+  <div class="status" id="status" data-state="loading"><span class="dot"></span><span id="statusText">Carregando…</span></div>
+  <div class="top-actions">
+    <button class="btn btn-ghost" id="previewBtn" type="button">Abrir prévia ↗</button>
+    <button class="btn btn-ghost" id="exportBtn" type="button">Exportar site (.zip) ↓</button>
+    <button class="btn btn-primary" id="saveBtn" type="button" disabled>Salvar alterações</button>
+  </div>
+</header>
+
+<div class="layout">
+  <main class="editor">
+    <nav class="tabs" role="tablist">
+      <button class="tab active" data-tab="produtos" role="tab">Produtos <span id="productCount" class="count"></span></button>
+      <button class="tab" data-tab="textos" role="tab">Textos e contato</button>
+    </nav>
+
+    <section class="panel-section" id="tab-produtos">
+      <div class="toolbar">
+        <label class="search"><span>⌕</span><input id="search" type="search" placeholder="Buscar produto…"></label>
+        <select id="catFilter" aria-label="Filtrar por categoria"></select>
+        <button class="btn btn-dark" id="addBtn" type="button">+ Novo produto</button>
+      </div>
+      <div id="productList" class="product-list"></div>
+      <p id="emptyList" class="empty" hidden>Nenhum produto encontrado.</p>
+    </section>
+
+    <section class="panel-section" id="tab-textos" hidden>
+      <div class="settings-card">
+        <label>WhatsApp comercial <small>Somente números, com DDI e DDD (ex.: 5511952909882)</small>
+          <input data-setting="whatsapp" inputmode="numeric"></label>
+        <label>Faixa de aviso (topo do site)
+          <input data-setting="announcement"></label>
+        <label>Texto de apresentação (abaixo do título principal)
+          <textarea data-setting="heroText" rows="3"></textarea></label>
+      </div>
+    </section>
+  </main>
+
+  <aside class="preview">
+    <div class="preview-head">
+      <span>Prévia do site <small>(versão salva)</small></span>
+      <div class="device-toggle" role="group" aria-label="Tamanho da prévia">
+        <button type="button" class="active" data-device="desktop">Computador</button>
+        <button type="button" data-device="mobile">Celular</button>
+      </div>
+    </div>
+    <div class="preview-frame" id="previewFrameWrap"><iframe id="previewFrame" title="Prévia do site" src="about:blank"></iframe></div>
+  </aside>
+</div>
+
+<input type="file" id="imageInput" accept="image/jpeg,image/png,image/webp,image/gif" hidden>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+<script src="painel/panel.js"></script>
+</body>
+</html>

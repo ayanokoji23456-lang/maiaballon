@@ -1,5 +1,5 @@
 // Configuração dinâmica gerada pelo painel da Hostinger.
-const WHATSAPP_NUMBER = window.SITE_CONFIG?.whatsapp || "5511952909882";
+let WHATSAPP_NUMBER = window.SITE_CONFIG?.whatsapp || "5511952909882";
 if (window.SITE_CONFIG?.announcement) document.querySelector(".announcement")?.replaceChildren(window.SITE_CONFIG.announcement);
 if (window.SITE_CONFIG?.heroText) document.querySelector(".hero-copy > p")?.replaceChildren(window.SITE_CONFIG.heroText);
 const categoryLabels = {baloes:"Balões", cafe:"Café da manhã", cestas:"Cestas personalizadas", casal:"Presentes para casal", kids:"Kids"};
@@ -9,6 +9,12 @@ const resultsCount = document.getElementById("resultsCount");
 const emptyState = document.getElementById("emptyState");
 let activeFilter = "todos";
 const money = value => value.toLocaleString("pt-BR",{style:"currency",currency:"BRL"});
+const imageSrc = p => {
+  if (p.image && /^https?:/.test(p.image)) return p.image;
+  if (p.image?.startsWith("uploads/")) return "/" + p.image;
+  if (p.image?.startsWith("assets/")) return p.image;
+  return p.page ? "assets/" + p.page : "";
+};
 
 function renderProducts(){
   const query = searchInput.value.trim().toLocaleLowerCase("pt-BR");
@@ -19,7 +25,7 @@ function renderProducts(){
   grid.innerHTML = list.map(p => `
     <article class="product-card">
       <div class="product-photo" data-product="${p.id}">
-        <img src="${p.image || `assets/${p.page}`}" alt="${p.name}" loading="lazy">
+        <img src="${imageSrc(p)}" alt="${p.name}" loading="lazy">
         <span class="product-category">${categoryLabels[p.cat]}</span>${p.best ? '<span class="product-badge">♡ Melhor presente!</span>' : ""}
       </div>
       <div class="product-info">
@@ -63,3 +69,16 @@ menuToggle.addEventListener("click",()=>{
   menuToggle.setAttribute("aria-expanded",String(open));
 });
 renderProducts();
+(async () => {
+  try {
+    const response = await fetch("/api/catalog.php?v=" + Date.now(), {cache: "no-store"});
+    if (!response.ok) return;
+    const catalog = await response.json();
+    window.PRODUCTS = catalog.products || [];
+    window.SITE_CONFIG = catalog.settings || {};
+    WHATSAPP_NUMBER = window.SITE_CONFIG.whatsapp || WHATSAPP_NUMBER;
+    if (window.SITE_CONFIG.announcement) document.querySelector(".announcement")?.replaceChildren(window.SITE_CONFIG.announcement);
+    if (window.SITE_CONFIG.heroText) document.querySelector(".hero-copy > p")?.replaceChildren(window.SITE_CONFIG.heroText);
+    renderProducts();
+  } catch {}
+})();

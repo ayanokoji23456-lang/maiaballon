@@ -31,6 +31,8 @@ function writeGeneratedFiles($products, $settings, $productsFile, $configFile) {
     $jsonOptions = JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT;
     file_put_contents($productsFile, "window.PRODUCTS = " . json_encode($products, $jsonOptions) . ";\n", LOCK_EX);
     file_put_contents($configFile, "window.SITE_CONFIG = " . json_encode($settings, $jsonOptions) . ";\n", LOCK_EX);
+    file_put_contents(dirname(__DIR__) . '/site/products.js', "window.PRODUCTS = " . json_encode($products, $jsonOptions) . ";\n", LOCK_EX);
+    file_put_contents(dirname(__DIR__) . '/site/config.js', "window.SITE_CONFIG = " . json_encode($settings, $jsonOptions) . ";\n", LOCK_EX);
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {

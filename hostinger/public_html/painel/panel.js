@@ -40,14 +40,14 @@ function renderSettings(){document.querySelectorAll("[data-setting]").forEach(el
 
 async function load(){
   try{
-    const r=await fetch("/api/catalog");if(!r.ok)throw new Error();
+    const r=await fetch("/api/catalog.php");if(!r.ok)throw new Error();
     state=await r.json();dirty=false;renderList();renderSettings();setStatus("saved","Tudo salvo");reloadPreview();
   }catch{setStatus("error","Não foi possível carregar os dados");}
 }
 async function save(){
   setStatus("loading","Salvando…");
   try{
-    const r=await fetch("/api/catalog",{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify(state)});
+    const r=await fetch("/api/catalog.php",{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify(state)});
     const data=await r.json();if(!r.ok)throw new Error(data.error||"Erro ao salvar.");
     state=data;dirty=false;renderList();renderSettings();setStatus("saved","Tudo salvo");
     reloadPreview();toast("Alterações salvas! A prévia foi atualizada.");
@@ -71,7 +71,7 @@ $("productList").addEventListener("click",e=>{
 $("imageInput").addEventListener("change",async()=>{
   const file=$("imageInput").files[0];$("imageInput").value="";if(!file||uploadTarget==null)return;
   const fd=new FormData();fd.append("file",file);toast("Enviando imagem…");
-  const r=await fetch("/api/uploads",{method:"POST",body:fd});const data=await r.json();
+  const r=await fetch("/api/uploads.php",{method:"POST",body:fd});const data=await r.json();
   if(!r.ok)return toast(data.error||"Erro ao enviar imagem.");
   state.products[uploadTarget].image=data.image;markDirty();renderList();
 });
@@ -101,7 +101,7 @@ $("exportBtn").addEventListener("click",async()=>{
   try{
     const zip=new JSZip(),bust="?v="+Date.now();
     const get=async(path,type="text")=>{const r=await fetch("/site/"+path+bust);if(!r.ok)throw new Error("Falha ao baixar "+path);return type==="text"?r.text():r.blob();};
-    const catalog=await (await fetch("/api/catalog")).json();
+    const catalog=await (await fetch("/api/catalog.php")).json();
     const {products}=catalog;
     for(const f of["index.html","styles.css","styles-extra.css","app.js","readme.txt","logo.png","assets/hero-maia.webp"])zip.file(f,await get(f));
     const exportedProducts=catalog.products.map(p=>({...p,page:p.image||p.page||""}));

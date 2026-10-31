@@ -2,6 +2,7 @@
 *{box-sizing:border-box}body{margin:0;font-family:var(--sans);color:var(--ink);background:#f9eeeb}
 .topbar{display:flex;align-items:center;gap:16px;flex-wrap:wrap;padding:12px 20px;background:var(--cream);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5}
 .brand{display:flex;gap:8px;align-items:center}.brand strong{font-family:var(--serif);font-size:1.4rem;display:block}.brand small{font-size:.6rem;letter-spacing:.15em;color:var(--muted)}.brand-mark{font-size:1.5rem;color:var(--wine)}
+.brand-mark img{display:block;width:44px;height:44px;object-fit:contain;border-radius:50%}
 .status{display:flex;gap:6px;align-items:center;font-size:.85rem;color:var(--muted)}.dot{width:8px;height:8px;border-radius:50%;background:#bbb}
 .status[data-state=saved] .dot{background:#697b68}.status[data-state=dirty] .dot{background:#e0a03c}.status[data-state=error] .dot{background:#c0392b}
 .top-actions{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap}

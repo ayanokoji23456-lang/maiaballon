@@ -1,15 +1,11 @@
-// Os textos e o WhatsApp comercial (somente números com DDI + DDD) são editados pelo painel e ficam em config.js.
-const SITE_CONFIG = window.SITE_CONFIG || {};
-const WHATSAPP_NUMBER = String(SITE_CONFIG.whatsapp || "5511952909882").replace(/\D/g,"");
-if(SITE_CONFIG.announcement) document.getElementById("announcement").textContent = SITE_CONFIG.announcement;
-if(SITE_CONFIG.heroText) document.getElementById("heroText").textContent = SITE_CONFIG.heroText;
+// Configure aqui o WhatsApp comercial da Maia Balloons, somente números com DDI + DDD.
+const WHATSAPP_NUMBER = "5511952909882"; // +55 11 95290-9882 (WhatsApp comercial da Maia Balloons)
 const categoryLabels = {baloes:"Balões", cafe:"Café da manhã", cestas:"Cestas personalizadas", casal:"Presentes para casal", kids:"Kids"};
 const grid = document.getElementById("productGrid");
 const searchInput = document.getElementById("searchInput");
 const resultsCount = document.getElementById("resultsCount");
 const emptyState = document.getElementById("emptyState");
 let activeFilter = "todos";
-const escapeHtml = value => String(value ?? "").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const money = value => value.toLocaleString("pt-BR",{style:"currency",currency:"BRL"});
 
 function renderProducts(){
@@ -20,14 +16,14 @@ function renderProducts(){
   emptyState.hidden = list.length !== 0;
   grid.innerHTML = list.map(p => `
     <article class="product-card">
-      <div class="product-photo" data-product="${escapeHtml(p.id)}">
-        <img src="${escapeHtml(p.image)}" alt="${escapeHtml(p.name)}" loading="lazy">
+      <div class="product-photo" data-product="${p.id}">
+        <img src="${p.image || `assets/${p.page}`}" alt="${p.name}" loading="lazy">
         <span class="product-category">${categoryLabels[p.cat]}</span>${p.best ? '<span class="product-badge">♡ Melhor presente!</span>' : ""}
       </div>
       <div class="product-info">
-        <h3>${escapeHtml(p.name)}</h3><p>${escapeHtml(p.desc)}</p>
+        <h3>${p.name}</h3><p>${p.desc}</p>
         <div class="product-bottom"><span class="price">${money(p.price)}</span>
-          <button class="order-button" data-order="${escapeHtml(p.id)}">Quero esse ↗</button>
+          <button class="order-button" data-order="${p.id}">Quero esse ↗</button>
         </div>
       </div>
     </article>`).join("");
@@ -52,7 +48,7 @@ grid.addEventListener("click",event=>{
   const message = `Olá! Gostaria de consultar disponibilidade para: ${product.name} — ${money(product.price)}. Poderia me passar os detalhes, por favor?`;
   if(!WHATSAPP_NUMBER || WHATSAPP_NUMBER === "5511999999999"){
     const toast = document.getElementById("toast");
-    toast.textContent = "Antes de publicar, configure o número de WhatsApp no painel.";
+    toast.textContent = "Antes de publicar, configure o número de WhatsApp em app.js.";
     toast.classList.add("show"); setTimeout(()=>toast.classList.remove("show"),3500);
     return;
   }

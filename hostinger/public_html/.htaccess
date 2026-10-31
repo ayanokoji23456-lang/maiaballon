@@ -1,0 +1,16 @@
+DirectoryIndex index.html index.php
+
+RewriteEngine On
+
+RewriteRule ^api/catalog/?$ api/catalog.php [END]
+RewriteRule ^api/uploads/?$ api/uploads.php [END]
+RewriteRule ^site/uploads/(.+)$ uploads/$1 [END]
+RewriteRule ^site/products\.js$ products.js [END]
+RewriteRule ^site/config\.js$ config.js [END]
+RewriteRule ^site/?$ / [END]
+
+<FilesMatch "\.(json)$">
+  Require all denied
+</FilesMatch>
+
+Options -Indexes

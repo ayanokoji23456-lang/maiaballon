@@ -2,12 +2,12 @@ const CATS = {baloes:"Balões", cafe:"Café da manhã", cestas:"Cestas personali
 const $ = id => document.getElementById(id);
 let state = {products: [], settings: {}}, dirty = false, uploadTarget = null;
 const esc = v => String(v ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-const imgSrc = p => p.image ? (/^https?:/.test(p.image) ? p.image : "site/" + p.image) : "";
+const imgSrc = p => p.image ? (/^https?:/.test(p.image) ? p.image : "/site/" + p.image) : "";
 
 function toast(msg){const t=$("toast");t.textContent=msg;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),3000);}
 function setStatus(s, text){$("status").dataset.state=s;$("statusText").textContent=text;$("saveBtn").disabled=s!=="dirty";}
 function markDirty(){dirty=true;setStatus("dirty","Alterações não salvas");}
-function reloadPreview(){$("previewFrame").src="site/?v="+Date.now();}
+function reloadPreview(){$("previewFrame").src="/site/?v="+Date.now();}
 
 function renderList(){
   const q=$("search").value.trim().toLowerCase(), cat=$("catFilter").value;
@@ -46,7 +46,7 @@ async function save(){
     const data=await r.json();if(!r.ok)throw new Error(data.error||"Erro ao salvar.");
     state=data;dirty=false;renderList();renderSettings();setStatus("saved","Tudo salvo");
     reloadPreview();toast("Alterações salvas! A prévia foi atualizada.");
-    window.open("site/?v="+Date.now(),"maiaPreview");
+    window.open("/site/?v="+Date.now(),"maiaPreview");
   }catch(e){setStatus("dirty","Alterações não salvas");toast(e.message);}
 }
 
@@ -86,7 +86,7 @@ document.querySelectorAll("[data-device]").forEach(b=>b.addEventListener("click"
 $("catFilter").innerHTML=`<option value="">Todas as categorias</option>`+Object.entries(CATS).map(([k,v])=>`<option value="${k}">${v}</option>`).join("");
 $("search").addEventListener("input",renderList);$("catFilter").addEventListener("change",renderList);
 $("saveBtn").addEventListener("click",save);
-$("previewBtn").addEventListener("click",()=>{if(dirty)toast("A prévia mostra a versão salva. Salve para ver as alterações.");window.open("site/?v="+Date.now(),"maiaPreview");});
+$("previewBtn").addEventListener("click",()=>{if(dirty)toast("A prévia mostra a versão salva. Salve para ver as alterações.");window.open("/site/?v="+Date.now(),"maiaPreview");});
 window.addEventListener("beforeunload",e=>{if(dirty){e.preventDefault();e.returnValue="";}});
 
 // Exporta o site completo (HTML, CSS, JS, catálogo e imagens) em um .zip pronto para publicar.
@@ -95,9 +95,13 @@ $("exportBtn").addEventListener("click",async()=>{
   const btn=$("exportBtn");btn.disabled=true;btn.textContent="Gerando arquivo…";
   try{
     const zip=new JSZip(),bust="?v="+Date.now();
-    const get=async(path,type="text")=>{const r=await fetch("site/"+path+bust);if(!r.ok)throw new Error("Falha ao baixar "+path);return type==="text"?r.text():r.blob();};
-    for(const f of["index.html","styles.css","app.js","config.js","products.js","readme.txt"])zip.file(f,await get(f));
-    const {products}=await (await fetch("/api/catalog")).json();
+    const get=async(path,type="text")=>{const r=await fetch("/site/"+path+bust);if(!r.ok)throw new Error("Falha ao baixar "+path);return type==="text"?r.text():r.blob();};
+    const catalog=await (await fetch("/api/catalog")).json();
+    const {products}=catalog;
+    for(const f of["index.html","styles.css","styles-extra.css","app.js","readme.txt","logo.png","assets/hero-maia.webp"])zip.file(f,await get(f));
+    const exportedProducts=catalog.products.map(p=>({...p,page:p.image||p.page||""}));
+    zip.file("products.js",`window.PRODUCTS = ${JSON.stringify(exportedProducts,null,2)};\n`);
+    zip.file("config.js",`window.SITE_CONFIG = ${JSON.stringify(catalog.settings ?? {},null,2)};\n`);
     const images=[...new Set(products.map(p=>p.image).filter(i=>i&&!/^https?:/.test(i)))];
     if(!images.includes("assets/catalogo-56.jpg"))images.push("assets/catalogo-56.jpg");
     for(const img of images)zip.file(img,await get(img,"blob"));

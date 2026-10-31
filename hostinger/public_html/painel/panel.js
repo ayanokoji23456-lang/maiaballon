@@ -2,7 +2,12 @@ const CATS = {baloes:"Balões", cafe:"Café da manhã", cestas:"Cestas personali
 const $ = id => document.getElementById(id);
 let state = {products: [], settings: {}}, dirty = false, uploadTarget = null;
 const esc = v => String(v ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-const imgSrc = p => p.image ? (/^https?:/.test(p.image) ? p.image : "/site/" + p.image) : "";
+const imgSrc = p => {
+  if (!p.image) return "";
+  if (/^https?:/.test(p.image)) return p.image;
+  if (p.image.startsWith("assets/")) return "/" + p.image;
+  return "/" + p.image.replace(/^\/?site\//, "");
+};
 
 function toast(msg){const t=$("toast");t.textContent=msg;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),3000);}
 function setStatus(s, text){$("status").dataset.state=s;$("statusText").textContent=text;$("saveBtn").disabled=s!=="dirty";}
